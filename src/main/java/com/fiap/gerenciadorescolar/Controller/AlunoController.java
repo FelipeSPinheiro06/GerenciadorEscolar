@@ -1,12 +1,19 @@
-package com.fiap.gerenciadorescolar.Controller;
+package com.fiap.gerenciadorescolar.controller;
+
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.catalina.connector.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,28 +24,33 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException.NotFound;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.fiap.gerenciadorescolar.Model.Aluno;
+import com.fiap.gerenciadorescolar.model.Aluno;
+import com.fiap.gerenciadorescolar.repository.AlunoRepository;
 
 @RestController
 @RequestMapping("Aluno")
 public class AlunoController {
     
-    List <Aluno> repository =  new ArrayList<>();
+    
     Logger log = LoggerFactory.getLogger(getClass());
-
+    
+    @Autowired
+    AlunoRepository repository;
 
 
     @GetMapping()
     public List<Aluno> index(){
-        return repository;
+        return repository.findAll();
     }
     
     @PostMapping()
-    @ResponseStatus(code = HttpStatus.CREATED)
+    @ResponseStatus(code = CREATED)
     public Aluno AdicionarAluno(@RequestBody Aluno aluno) {
         log.info("cadastrando aluno" + aluno);
-        repository.add(aluno);
+        repository.save(aluno);
         return aluno;
     }
 
@@ -46,30 +58,20 @@ public class AlunoController {
     public ResponseEntity<Aluno> show(@PathVariable Long rm){
         log.info("buscar aluno por id {} ", rm);
 
-        /*for(Aluno aluno : repository){
-            if (categoria.rm().equals(rm))
-                return ResponseEntity.ok(categoria);
-        }*/
-                                                                     //FindFirst vai pegar o elemento do filtro que passou
-        var alunoEncontrado = getAlunoByID(rm);
-                                //se estiver vazia
-        if(alunoEncontrado.isEmpty())
-            return ResponseEntity.notFound().build();
+        return repository
+                    .findById(rm)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
 
-        return ResponseEntity.ok(alunoEncontrado.get());
     }
     
     @DeleteMapping("{rm}")
     public ResponseEntity<Object> destroy(@PathVariable Long rm){
         log.info("Apagando categoria com rm {}", rm);
 
-        var alunoEncontrado = getAlunoByID(rm);
-        
-        if (alunoEncontrado.isEmpty())
-            return ResponseEntity.notFound().build();
+        extracted(rm);
 
-        repository.remove(alunoEncontrado.get());
-
+        repository.deleteById(rm);
         return ResponseEntity.noContent().build();
     }
     
@@ -78,27 +80,17 @@ public class AlunoController {
     public ResponseEntity<Aluno> atualizar (@PathVariable Long rm, @RequestBody Aluno aluno){
         log.info("Atualizando aluno com rm {} para {}", rm, aluno);
 
-        var alunoEncontrado = getAlunoByID(rm);
-        if (alunoEncontrado.isEmpty())
-            return ResponseEntity.notFound().build();
-        
-        var alunoAntigo = alunoEncontrado.get();
-        var alunoNovo = new Aluno(rm ,aluno.getNome(), aluno.getTurma());
-
-        repository.remove(alunoAntigo);
-        repository.add(alunoNovo);
-
-        return ResponseEntity.ok(alunoNovo);
+        extracted(rm);
+        aluno.setRm(rm);
+        repository.save(aluno);
+        return ResponseEntity.ok(aluno);
     }
     
-    private Optional<Aluno> getAlunoByID(Long rm) {
-        var alunoEncontrado = repository
-        .stream()
-        .filter( a -> a.getRm().equals(rm))
-        .findFirst();
-
-        return alunoEncontrado;
-    }    
+    public void extracted(Long id) {
+        repository
+            .findById(id)
+            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Não existe categoria com o id informado"));
+    }   
 
     
 }
