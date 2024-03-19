@@ -1,4 +1,4 @@
-package com.fiap.gerenciadorescolar.controller;
+package com.fiap.gerenciadorescolar.Controller;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException.NotFound;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.fiap.gerenciadorescolar.model.Aluno;
+import com.fiap.gerenciadorescolar.Model.Aluno;
 import com.fiap.gerenciadorescolar.repository.AlunoRepository;
 
 @RestController
