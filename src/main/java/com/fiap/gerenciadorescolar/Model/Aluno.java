@@ -1,8 +1,18 @@
-package com.fiap.gerenciadorescolar.Model;
+package com.fiap.gerenciadorescolar.model;
 
 import java.util.Random;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.Data;
+
+@Data
+@Entity
 public class Aluno {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long rm;
     private String nome;
     private String turma;
@@ -12,28 +22,4 @@ public class Aluno {
         this.nome = nome;
         this.turma = turma;
     }
-
-    public Long getRm() {
-        return rm;
-    }
-
-    public void setRm(Long rm) {
-        this.rm = rm;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getTurma() {
-        return turma;
-    }
-
-    public void setTurma(String turma) {
-        this.turma = turma;
-    } 
 }
