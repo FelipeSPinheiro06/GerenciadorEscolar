@@ -1,4 +1,4 @@
-package com.fiap.gerenciadorescolar.Model;
+package com.fiap.gerenciadorescolar.model;
 
 import java.util.Random;
 
