@@ -9,9 +9,11 @@ import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
+@NoArgsConstructor
 public class Aluno {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
